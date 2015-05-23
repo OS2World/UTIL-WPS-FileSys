@@ -1,0 +1,13 @@
+#ifndef OS2_INCLUDED
+   #include <os2.h>
+#endif
+DLGINCLUDE 1 "rc.h"
+
+DLGTEMPLATE DID_LVMSETTINGS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", DID_LVMSETTINGS, 12, 6, 217, 158, NOT FS_DLGBORDER
+    BEGIN
+        AUTOCHECKBOX    "Eject all removables on system start", 
+                        ID_EJECTREMOVABLES, 7, 7, 91, 10
+    END
+END

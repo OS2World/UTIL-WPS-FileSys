@@ -1,0 +1,71 @@
+#ifndef namefix_idl
+#define namefix_idl
+
+#include <wpsystem.idl>
+
+  interface M_WPSystemFix;
+  interface WPSystemFix: WPSystem
+  {
+#ifdef __SOMIDL__
+      implementation
+     {
+        local;
+        majorversion      = 1;
+        minorversion      = 1;
+        filestem          = system;
+        dllname           = "filesys.dll";
+        callstyle         = oidl;
+        metaclass         = M_WPSystemFix; 
+        somDefaultInit    :override, init;
+        somDestruct       :override;
+        wpAddSettingsPages:override;
+
+        passthru C_xh_before = ""
+        "#define INCL_PM"
+        "#define INCL_BASE"
+        "#define INCL_DOSDEVIOCTL"
+        "#include <os2.h>"
+        "";
+
+        passthru C_xih_after = ""
+        "#ifdef __cplusplus"
+        "   extern \"C\" {"
+        "#endif"
+        "int _CRT_init(void);"
+        "void _CRT_term(void);"
+        "void __ctordtorInit(void);"
+        "void __ctordtorTerm(void);"
+        "#ifdef __cplusplus"
+        "}"
+        "#endif"
+        "#include <ctype.h>"
+        "#include <rc.h>"
+        "#include <wpclsmgr.xh>"
+        "";
+      };
+#endif
+  };      
+
+
+   interface M_WPSystemFix: M_WPSystem
+   {
+#ifdef __SOMIDL__
+      implementation 
+     {
+        local;
+        majorversion = 1;
+        minorversion = 1;
+        callstyle    = oidl;
+        filestem     = system;
+        dllname      = "filesys.dll";
+
+        wpclsSetSetting   :override;
+        wpclsQuerySetting :override;
+
+        BOOL fEject;
+      };
+#endif
+   };
+
+#endif
+
