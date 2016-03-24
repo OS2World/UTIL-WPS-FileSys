@@ -24,6 +24,40 @@
 
 HMODULE g_hModule = NULLHANDLE;
 
+
+/*
+  IMPORTANT NOTE ON CALLING _CRT_init and _CRT_term in any case, no matter if you link to the CRT statically or dynamically
+
+<quote>
+#: 172179 S4/IBM VisualAge C++
+    31-Jan-96  02:11:56
+Sb: #Destructors at exit(int)
+Fm: ROGER PETT [IBM] 73251,1733
+To: Dean Roddey 72170,1614 (X)
+
+OS/2 is supposed to run DLL termination in the opposite order to the DLL
+initialization.  Since static object destructors and CRT termination are
+done in the DLL termination ocde, it is a problem if this does not happen.
+
+Unfortunately, there *are* conditions where the DLL termination can run
+"out of order".  It's a known OS/2 bug, and I understand that it is not
+fixable without some rather major surgery (i.e. it's likely to introduce new
+bugs!).
+Personally, I'd rather have the devil I know, since you can program your
+way around it.  For example:
+  In VAC++, the CRT exposes both _CRT_init() and _CRT_term(), and you
+should call both, regardless of whether you statically or dynamically bind to
+the runtime.   This is a change from C Set++.  We count the number of times
+the runtime is initialized, and only completely shut down the runtime when
+the number of _CRT_term() calls match the number of _CRT_init() calls.  This
+insures the runtime stays "alive" until all its users have terminated.  We get
+away with this because the OS doesn't immediately unload the DLL after
+running the DLL termination.
+
+Roger..
+</quote>
+*/
+
 /*
    there are other ways to query the module handle
    but this one seems simple enough
@@ -34,12 +68,10 @@ ULONG APIENTRY _DLL_InitTerm(ULONG modhandle,ULONG flag)
 {
     if(flag == 0)
     {
-#ifndef __IMPORTLIB__
         if (_CRT_init())
         {
             return 0; /* fail */
         }
-#endif
 #ifdef __cplusplus
         __ctordtorInit();
 #endif
@@ -52,9 +84,8 @@ ULONG APIENTRY _DLL_InitTerm(ULONG modhandle,ULONG flag)
         __ctordtorTerm();
 #endif
 
-#ifndef __IMPORTLIB__
         _CRT_term();
-#endif
+
         return 1; /* success */
     }
     else
@@ -82,35 +113,7 @@ ULONG APIENTRY _DLL_InitTerm(ULONG modhandle,ULONG flag)
    setting (if the replacement class sets the default object style to "no template")
 */
 
-SOMEXTERN VOID SOMLINK SOMInitModule(long majorVersion,long minorVersion, string className)
-{
-   SOM_IgnoreWarning(majorVersion);
-   SOM_IgnoreWarning(minorVersion);
-   SOM_IgnoreWarning(className);
 
-   WPSystemFixNewClass(WPSystemFix_MajorVersion,WPSystemFix_MinorVersion);
-   WPFileSystemFixNewClass(WPFileSystemFix_MajorVersion,WPFileSystemFix_MinorVersion);
-   return;
-}
-
-
-
-/*
- * SOM_Scope void SOMLINK somDefaultInit(WPFileSystemFix *somSelf, 
- *                                       som3InitCtrl* ctrl)
- */
-
-/*
- * The prototype for somDefaultInit was replaced by the following prototype:
- */
-
-/*
- * SOM_Scope void SOMLINK somDefaultInit(WSystemFix *somSelf, som3InitCtrl* ctrl)
- */
-
-/*
- * The prototype for somDefaultInit was replaced by the following prototype:
- */
 SOM_Scope void SOMLINK somDefaultInit(WPFileSystemFix *somSelf, 
                                       som3InitCtrl* ctrl)
 {
@@ -128,24 +131,6 @@ SOM_Scope void SOMLINK somDefaultInit(WPFileSystemFix *somSelf,
 }
 
 
-
-/*
- * SOM_Scope void SOMLINK somDestruct(WPFileSystemFix *somSelf, 
- *                                    octet doFree, som3DestructCtrl* ctrl)
- */
-
-/*
- * The prototype for somDestruct was replaced by the following prototype:
- */
-
-/*
- * SOM_Scope void SOMLINK somDestruct(WSystemFix *somSelf, octet doFree, 
- *                                    som3DestructCtrl* ctrl)
- */
-
-/*
- * The prototype for somDestruct was replaced by the following prototype:
- */
 SOM_Scope void SOMLINK somDestruct(WPFileSystemFix *somSelf, 
                                    octet doFree, som3DestructCtrl* ctrl)
 {
@@ -228,7 +213,7 @@ SOM_Scope BOOL  SOMLINK wpMenuItemSelected(WPFileSystemFix *somSelf,
            */
            theFolder = (WPFolder *)somSelf;
            pszName = theFolder->wpQueryTitle();
-           fret    = theFolder->wpSetTitle(pszName);
+           fret    = theFolder->wpSetTitleAndRenameFile(pszName,0UL);
 
            /*
               as a safety measure, make sure
@@ -245,7 +230,7 @@ SOM_Scope BOOL  SOMLINK wpMenuItemSelected(WPFileSystemFix *somSelf,
            theFolder = (WPFolder *)somSelf;
            fret    = TRUE;
            pszName = theFolder->wpQueryTitle();
-           if (!theFolder->wpSetTitle(pszName))
+           if (!theFolder->wpSetTitleAndRenameFile(pszName,0UL))
            {
               fret = FALSE;
               goto end2;
@@ -258,7 +243,7 @@ SOM_Scope BOOL  SOMLINK wpMenuItemSelected(WPFileSystemFix *somSelf,
            if ((!rc && (errorid == WPERR_BUFFER_OVERFLOW)) || rc) {
               for (i=0,rc = TRUE;i<ulCount;i++) {
                    pszName = Objects[i]->wpQueryTitle();
-                   rc = rc && Objects[i]->wpSetTitle(pszName);
+                   rc = rc && Objects[i]->wpSetTitleAndRenameFile(pszName,0UL);
                    Objects[i]->wpUnlockObject();
               } /* endfor */
               if (!rc) {
@@ -277,7 +262,7 @@ SOM_Scope BOOL  SOMLINK wpMenuItemSelected(WPFileSystemFix *somSelf,
               if ((!rc && (errorid == WPERR_BUFFER_OVERFLOW)) || rc) {
                  for (i=0,rc=TRUE;i<ulCount;i++) {
                       pszName = Objects[i]->wpQueryTitle();
-                      rc = rc && Objects[i]->wpSetTitle(pszName);
+                      rc = rc && Objects[i]->wpSetTitleAndRenameFile(pszName,0UL);
                       Objects[i]->wpUnlockObject();
                  } /* endfor */
                  if (!rc) {
@@ -307,7 +292,7 @@ end2:
 
         case MENUID_FILESINGLE:
            pszName = somSelf->wpQueryTitle();
-           fret = somSelf->wpSetTitle(pszName);
+           fret = somSelf->wpSetTitleAndRenameFile(pszName,0UL);
            break;
 
         default:

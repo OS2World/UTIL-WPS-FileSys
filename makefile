@@ -55,7 +55,7 @@ filesys.dll: $(OBJS) $(RES) $(DEF)
        -7 ilink.exe -nol -nobas $(LFLAGS) -dll -packc -packd -e:2 -m -o:$@ $(LVMTK)\ $(OBJS) $(LIBS) $(DEF)
 	   rc.exe -n -x2 $(RES) $@
        dllrname.exe $@ CPPOM30=OS2OM30 /n /q
-       emxupd.exe $@ $(COMSPEC:CMD.EXE=DLL)
+       emxupd.exe $@ $(OS2_SHELL:CMD.EXE=DLL)
 
 filesys.res: filesys.rc
 
