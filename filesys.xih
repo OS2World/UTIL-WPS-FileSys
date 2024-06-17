@@ -839,6 +839,8 @@ typedef void M_WPFileSystemFixData;
   #define _somPrintSelf somSelf->somPrintSelf
   #define _somDumpSelf somSelf->somDumpSelf
   #define _somDumpSelfInt somSelf->somDumpSelfInt
+  #define _wpclsInitData somSelf->wpclsInitData
+  #define _wpclsUnInitData somSelf->wpclsUnInitData
 #endif
 
 
@@ -854,8 +856,97 @@ SOMEXTERN struct M_WPFileSystemFixCClassDataStructure SOMDLINK M_WPFileSystemFix
 
 
 /*
+ * Overridden method: wpclsInitData
+ */
+SOM_Scope void  SOMLINK wpclsInitData(M_WPFileSystemFix *somSelf);
+static char *somMN_M_WPFileSystemFixwpclsInitData = "M_WPObject::wpclsInitData";
+static somId somId_M_WPFileSystemFixwpclsInitData = &somMN_M_WPFileSystemFixwpclsInitData;
+#ifdef somId_wpclsInitData
+#undef somId_wpclsInitData
+#else
+#define somId_wpclsInitData somId_M_WPFileSystemFixwpclsInitData
+#endif
+typedef void   SOMLINK somTP_xih_M_WPFileSystemFix_wpclsInitData(M_WPFileSystemFix *somSelf);
+typedef somTP_xih_M_WPFileSystemFix_wpclsInitData *somTD_xih_M_WPFileSystemFix_wpclsInitData;
+/* define the parent method call macro */
+static somMethodProc* M_WPFileSystemFix_parent_M_WPFileSystem_wpclsInitData_resolved;
+#define M_WPFileSystemFix_parent_M_WPFileSystem_wpclsInitData(somSelf) \
+  ((( somTD_xih_M_WPFileSystemFix_wpclsInitData ) \
+      M_WPFileSystemFix_parent_M_WPFileSystem_wpclsInitData_resolved) \
+	(somSelf))
+/* define a variety of (possibly ambiguous) short forms */
+#ifndef SOMGD_pmc_parent_wpclsInitData
+  #ifdef parent_wpclsInitData
+    #define SOMGD_pmc_parent_wpclsInitData
+    #undef parent_wpclsInitData
+  #else
+#define parent_wpclsInitData M_WPFileSystemFix_parent_M_WPFileSystem_wpclsInitData
+  #endif
+#endif
+#ifndef SOMGD_pmc_parent_M_WPFileSystem_wpclsInitData
+  #ifdef parent_M_WPFileSystem_wpclsInitData
+    #define SOMGD_pmc_parent_M_WPFileSystem_wpclsInitData
+    #undef parent_M_WPFileSystem_wpclsInitData
+  #else
+    #define parent_M_WPFileSystem_wpclsInitData M_WPFileSystemFix_parent_M_WPFileSystem_wpclsInitData
+  #endif
+#endif
+#define M_WPFileSystemFix_parents_wpclsInitData(somSelf) (\
+   M_WPFileSystemFix_parent_M_WPFileSystem_wpclsInitData(somSelf))
+
+/*
+ * Overridden method: wpclsUnInitData
+ */
+SOM_Scope void  SOMLINK wpclsUnInitData(M_WPFileSystemFix *somSelf);
+static char *somMN_M_WPFileSystemFixwpclsUnInitData = "M_WPObject::wpclsUnInitData";
+static somId somId_M_WPFileSystemFixwpclsUnInitData = &somMN_M_WPFileSystemFixwpclsUnInitData;
+#ifdef somId_wpclsUnInitData
+#undef somId_wpclsUnInitData
+#else
+#define somId_wpclsUnInitData somId_M_WPFileSystemFixwpclsUnInitData
+#endif
+typedef void   SOMLINK somTP_xih_M_WPFileSystemFix_wpclsUnInitData(M_WPFileSystemFix *somSelf);
+typedef somTP_xih_M_WPFileSystemFix_wpclsUnInitData *somTD_xih_M_WPFileSystemFix_wpclsUnInitData;
+/* define the parent method call macro */
+static somMethodProc* M_WPFileSystemFix_parent_M_WPFileSystem_wpclsUnInitData_resolved;
+#define M_WPFileSystemFix_parent_M_WPFileSystem_wpclsUnInitData(somSelf) \
+  ((( somTD_xih_M_WPFileSystemFix_wpclsUnInitData ) \
+      M_WPFileSystemFix_parent_M_WPFileSystem_wpclsUnInitData_resolved) \
+	(somSelf))
+/* define a variety of (possibly ambiguous) short forms */
+#ifndef SOMGD_pmc_parent_wpclsUnInitData
+  #ifdef parent_wpclsUnInitData
+    #define SOMGD_pmc_parent_wpclsUnInitData
+    #undef parent_wpclsUnInitData
+  #else
+#define parent_wpclsUnInitData M_WPFileSystemFix_parent_M_WPFileSystem_wpclsUnInitData
+  #endif
+#endif
+#ifndef SOMGD_pmc_parent_M_WPFileSystem_wpclsUnInitData
+  #ifdef parent_M_WPFileSystem_wpclsUnInitData
+    #define SOMGD_pmc_parent_M_WPFileSystem_wpclsUnInitData
+    #undef parent_M_WPFileSystem_wpclsUnInitData
+  #else
+    #define parent_M_WPFileSystem_wpclsUnInitData M_WPFileSystemFix_parent_M_WPFileSystem_wpclsUnInitData
+  #endif
+#endif
+#define M_WPFileSystemFix_parents_wpclsUnInitData(somSelf) (\
+   M_WPFileSystemFix_parent_M_WPFileSystem_wpclsUnInitData(somSelf))
+
+/*
  * -- Routines and Structures to create the class object
  */
+
+
+/*
+ * Declare the Override Methods table.
+ */
+static somOverrideMethod_t M_WPFileSystemFixOM[] = {
+    {    &somId_M_WPFileSystemFixwpclsInitData,
+         (somMethodProc *) wpclsInitData  },
+    {    &somId_M_WPFileSystemFixwpclsUnInitData,
+         (somMethodProc *) wpclsUnInitData  },
+};
 
 
 /*
@@ -869,7 +960,7 @@ static somId somPCM_WPFileSystemFix[] = {
 };
 
 static somStaticClassInfo M_WPFileSystemFixSCI = {
-    4, 0, 0, 0, 0, 0, /* layout version 4 */ 
+    4, 0, 2, 0, 0, 0, /* layout version 4 */ 
     M_WPFileSystemFix_MajorVersion, M_WPFileSystemFix_MinorVersion,
     0, M_WPFileSystemFix_MaxNoMethods, 1,
     &somCN_M_WPFileSystemFix,
@@ -877,7 +968,7 @@ static somStaticClassInfo M_WPFileSystemFixSCI = {
     somPCM_WPFileSystemFix,
     (somClassDataStructure *) &M_WPFileSystemFixClassData,
     (somCClassDataStructure *) &M_WPFileSystemFixCClassData,
-    (somStaticMethod_t *) NULL, (somOverrideMethod_t *) NULL,
+    (somStaticMethod_t *) NULL, M_WPFileSystemFixOM,
     (char *) NULL,
     (somNonInternalData_t *) NULL,
    (somProcMethods_t *) NULL,
@@ -915,6 +1006,10 @@ SOMClass * SOMLINK M_WPFileSystemFixNewClass (integer4 somtmajorVersion,
           return ((SOMClass*)((void*)_M_WPFileSystemFix));
     M_WPFileSystemNewClass(M_WPFileSystem_MajorVersion,M_WPFileSystem_MinorVersion);	/* static reference */
     result = (SOMClass*)((void*)somBuildClass(0xFFFFFFFF,&M_WPFileSystemFixSCI, somtmajorVersion, somtminorVersion));
+    M_WPFileSystemFix_parent_M_WPFileSystem_wpclsUnInitData_resolved = 
+	somParentNumResolve(M_WPFileSystemFixCClassData.parentMtab, 1, M_WPObjectClassData.wpclsUnInitData);
+    M_WPFileSystemFix_parent_M_WPFileSystem_wpclsInitData_resolved = 
+	somParentNumResolve(M_WPFileSystemFixCClassData.parentMtab, 1, M_WPObjectClassData.wpclsInitData);
     return result;
 }
 

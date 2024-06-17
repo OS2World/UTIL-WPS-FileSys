@@ -67,6 +67,8 @@
         callstyle    = oidl;
         filestem     = filesys;
         dllname      = "filesys.dll";
+        wpclsInitData                :override;
+        wpclsUnInitData             :override;
       };
 #endif
    };

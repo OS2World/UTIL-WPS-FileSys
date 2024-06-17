@@ -21,6 +21,7 @@
 #define _RETAIL /* to completely eliminate the ...MethodDebug(...) debugging output to SOMOutCharRoutine (default:stdout) */
 #include "filesys.xih"
 #include "system.xih"
+#include "except.h"
 
 HMODULE g_hModule = NULLHANDLE;
 
@@ -94,6 +95,7 @@ ULONG APIENTRY _DLL_InitTerm(ULONG modhandle,ULONG flag)
     }
 }
 
+
 /*
    introductory note: because this class is a REPLACEMENT class
    the 2 metaclass methods wpclsQueryStyle and wpclsQueryTitle have NOT
@@ -112,6 +114,7 @@ ULONG APIENTRY _DLL_InitTerm(ULONG modhandle,ULONG flag)
    the already existing templates of the original class conflict with the new
    setting (if the replacement class sets the default object style to "no template")
 */
+
 
 
 SOM_Scope void SOMLINK somDefaultInit(WPFileSystemFix *somSelf, 
@@ -325,11 +328,10 @@ SOM_Scope void  SOMLINK wpInitData(WPFileSystemFix *somSelf)
     APIRET rc = NO_ERROR;
     UCHAR chr;
     BOOL  fEject = FALSE;
-    BOOL  fFound = FALSE;
 
     /* do our one time initialization here */
     if (somSelf->_get_fIsInitialized() == FALSE) {
-       somSelf->_set_fIsInitialized(TRUE);
+      somSelf->_set_fIsInitialized(TRUE);
 
        _WPSystemFix->wpclsQuerySetting("EjectRemovables",&fEject,sizeof(fEject));
        if (fEject) {
@@ -342,21 +344,31 @@ SOM_Scope void  SOMLINK wpInitData(WPFileSystemFix *somSelf)
                    if (arr.Volume_Control_Data[i].Device_Type == LVM_PRM) {
                       rec = Get_Volume_Information(arr.Volume_Control_Data[i].Volume_Handle,&ret);
                       chr = (UCHAR)toupper((int)rec.Current_Drive_Letter);
+
+                      CmdParm.Command = 0;        /* unlock media */
+                      CmdParm.Unit    = chr - 'A';
+                      ulPLen = sizeof(CmdParm);
+                      ulDLen = 0UL;
+                      rc = DosDevIOCtl(-1,IOCTL_DISK,DSK_UNLOCKEJECTMEDIA,&CmdParm,ulPLen,&ulPLen,NULL,ulDLen,&ulDLen);
+
                       CmdParm.Command = 2;        /* eject media */
                       CmdParm.Unit    = chr - 'A';
                       ulPLen = sizeof(CmdParm);
                       ulDLen = 0UL;
-                      rc = DosDevIOCtl(0xFFFFFFFFUL,IOCTL_DISK,DSK_UNLOCKEJECTMEDIA,&CmdParm,ulPLen,&ulPLen,NULL,ulDLen,&ulDLen);
-                      fFound = TRUE;
+
+                      /*
+                         for one reason or the other, the following IOCTL tends to trap
+                         I don't know why but we better catch the exception so that the WPS won't crash
+                      */
+                      TRY(exc) {
+                         rc = DosDevIOCtl(-1,IOCTL_DISK,DSK_UNLOCKEJECTMEDIA,&CmdParm,ulPLen,&ulPLen,NULL,ulDLen,&ulDLen);
+                      }
+                      ENDTRY(exc);
                    } /* endif */
                 } /* endfor */
                 Free_Engine_Memory(arr.Volume_Control_Data);
              } /* endif */
              Close_LVM_Engine();
-          } /* endif */
-   
-          if (fFound) {
-             Rediscover_PRMs(&ret);
           } /* endif */
        } /* endif */
 
@@ -385,5 +397,24 @@ void SOMLINK InitOnce(SOMClass *cls)
    /* and the static variable has to be created as an attribute of the class */
    /* see the IDL file */
    WPFileSystemFixClassData.fIsInitialized = &fInit;
+}
+
+SOM_Scope void  SOMLINK wpclsInitData(M_WPFileSystemFix *somSelf)
+{
+    /* M_WPFileSystemFixData *somThis = M_WPFileSystemFixGetData(somSelf); */
+    M_WPFileSystemFixMethodDebug("M_WPFileSystemFix","wpclsInitData");
+
+    M_WPFileSystemFix_parent_M_WPFileSystem_wpclsInitData(somSelf);
+
+    /* we have to load WPSystemFix class because we are making use of the Metaclass object _WPSystemFix */
+    WPSystemFixNewClass(WPSystemFix_MajorVersion,WPSystemFix_MinorVersion);
+}
+
+SOM_Scope void  SOMLINK wpclsUnInitData(M_WPFileSystemFix *somSelf)
+{
+    /* M_WPFileSystemFixData *somThis = M_WPFileSystemFixGetData(somSelf); */
+    M_WPFileSystemFixMethodDebug("M_WPFileSystemFix","wpclsUnInitData");
+
+    M_WPFileSystemFix_parent_M_WPFileSystem_wpclsUnInitData(somSelf);
 }
 

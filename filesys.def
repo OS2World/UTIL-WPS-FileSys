@@ -5,7 +5,7 @@
 ;      SOM Precompiler somipc: 2.29.1.17
 ;      SOM Emitter emitdef: 2.47
 LIBRARY filesys INITINSTANCE TERMINSTANCE
-DESCRIPTION '@#Lars Erdmann:2.0.1#@##1## 2016/03/17 08:32:00      Standbein ::::1::0@@WPFileSystemFix/WPSystemFix Class Library'
+DESCRIPTION '@#Lars Erdmann:3.0.1#@##1## 2016/10/02 08:32:00      Standbein ::::1::0@@WPFileSystemFix/WPSystemFix Class Library'
 PROTMODE
 DATA MULTIPLE NONSHARED LOADONCALL
 EXPORTS

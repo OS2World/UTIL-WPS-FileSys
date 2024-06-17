@@ -46,7 +46,7 @@ LFLAGS=
 	   rc.exe -n -r $< $@
 
 LIBS   = somtk.lib lvm.lib
-OBJS   = filesys.obj system.obj
+OBJS   = filesys.obj system.obj except.obj
 DEF    = filesys.def
 RES    = filesys.res
 
@@ -60,6 +60,8 @@ filesys.dll: $(OBJS) $(RES) $(DEF)
 filesys.res: filesys.rc
 
 filesys.obj: filesys.cpp
+system.obj: system.cpp
+except.obj: except.cpp
 
 filesys.cpp: filesys.idl
 system.cpp : system.idl
